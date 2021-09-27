@@ -1,0 +1,141 @@
+Fields added to the patient table:
+=================================
+isForeigner        C(1) default 'N'
+billingCode        C(3) default 'A'
+hasPoorId          C(1) default 'N'
+poorIdExpiry       datetime
+hasHEF             C(1) default 'N'
+HEFexpiry          datetime
+LMTR               C(3)
+isEmployee         C(1) default 'N'
+thirdPartyPayer    C(1) default 'N'
+insuranceName      C(100)
+employeeCardId     C(10)
+employeeCardExpiry datetime
+
+
+
+On Load routine:
+================
+    Me![employeeCardId].Enabled = False
+    Me![employeeCardExpiry].Enabled = False
+
+    If Me![isForeignerCombo].Value = "Yes" Then
+       Me![isEmployeeCombo].Value = "No"
+       Me![isEmployeeCombo].Enabled = False
+       
+       Me.PoorIdExpiry.Value = ""
+       Me![hasPoorIdCombo].Value = "No"
+       Me![PoorIdExpiry].Enabled = False
+       Me![hasPoorIdCombo].Enabled = False
+       
+       Me.HEFexpiry.Value = ""
+       Me![hasHEFCombo].Value = "No"
+       Me![HEFexpiry].Enabled = False
+       Me![hasHEFCombo].Enabled = False
+    Else
+       Me![hasPoorIdCombo].Enabled = True
+       Me![hasHEFCombo].Enabled = True
+       
+       Me![PoorIdExpiry].Enabled = (Me![hasPoorIdCombo].Value = "Yes")
+       Me![HEFexpiry].Enabled = (Me![hasHEFCombo].Value = "Yes")
+    End If
+    Me![insuranceNameTBox].Enabled = (thirdPartyPayerCombo.Value = "Yes")
+
+
+Is foreigner change routine:
+===========================
+   If isForeignerCombo.Value = "Yes" Then
+      Me![isEmployeeCombo].Enabled = False
+      Me![hasPoorIdCombo].Enabled = False
+      Me![PoorIdExpiry].Enabled = False
+      Me![hasHEFCombo].Enabled = False
+      Me![HEFexpiry].Enabled = False
+   Else
+      Me![isEmployeeCombo].Enabled = True
+      Me![hasPoorIdCombo].Enabled = True
+      Me![PoorIdExpiry].Enabled = False
+      Me![hasHEFCombo].Enabled = True
+      Me![HEFexpiry].Enabled = False
+   End If
+
+
+Is Employee change routine:
+==========================
+   If Me![isEmployeeCombo].Value = "Yes" Then
+      Me![employeeCardId].Enabled = True
+      Me![employeeCardExpiry].Enabled = True
+      Me![isForeignerCombo].Enabled = False
+      Me![thirdPartyPayerCombo].Enabled = True
+   
+      Me![hasPoorIdCombo].Value = "No"
+      Me.PoorIdExpiry.Value = ""
+      Me![PoorIdExpiry].Enabled = False
+      Me![hasPoorIdCombo].Enabled = False
+       
+      Me![hasHEFCombo].Value = "No"
+      Me.HEFexpiry.Value = ""
+      Me![HEFexpiry].Enabled = False
+      Me![hasHEFCombo].Enabled = False
+   Else
+      Me![employeeCardId].Enabled = False
+      Me![employeeCardExpiry].Enabled = False
+      Me![isForeignerCombo].Enabled = True
+      Me![thirdPartyPayerCombo].Enabled = True
+      
+      Me![hasPoorIdCombo].Value = "No"
+      Me.PoorIdExpiry.Value = ""
+      Me![hasPoorIdCombo].Enabled = True
+      Me![PoorIdExpiry].Enabled = False
+       
+      Me![hasHEFCombo].Value = "No"
+      Me.HEFexpiry.Value = ""
+      Me![hasHEFCombo].Enabled = True
+      Me![HEFexpiry].Enabled = False
+   End If
+
+
+Save button routine:
+===================
+    ' The default billing code
+    Me![billingCode] = "A"
+    
+    If Me![isForeignerCombo].Value = "Yes" Then
+       ' The patient is a tourist
+       Me![billingCode] = "F"
+    End If
+    
+    If Me![isEmployeeCombo].Value = "Yes" Then
+       ' The patient is an AHC employee
+       Me![billingCode] = "E"
+    Else
+       ' Does patient have Poor ID?
+       If Me![hasPoorId].Value = "Yes" Then
+          If Len(Me![PoorIdExpiry].Value) > 0 Then
+             If CDate(Me![PoorIdExpiry].Value) > Date Then
+                ' Poor ID is valid
+                Me![billingCode] = "D"
+             Else
+                ' Poor ID is expired
+                Me![billingCode] = "A"
+             End If
+          End If
+       End If
+       
+       ' Does patient have HEF ID?
+       If Me![hasHEFCombo].Value = "Yes" Then
+          If Len(Me![HEFexpiry].Value) > 0 Then
+             If CDate(Me![HEFexpiry].Value) > Date Then
+                ' HEF ID is valid
+                Me![billingCode] = "D"
+             Else
+                ' HEF ID is expired
+                Me![billingCode] = "A"
+             End If
+          End If
+       End If
+    End If
+    If Me![thirdPartyPayerCombo].Value = "Yes" Then
+       ' The patient has insurance or other third party payer
+       Me![billingCode] = "G"
+    End If

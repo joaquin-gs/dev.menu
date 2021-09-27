@@ -1,0 +1,4 @@
+Patient id: 2018-000044
+Age: Female, 4 years, 10 months, 23 days (2016-09-11)
+
+Check against JS function.

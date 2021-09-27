@@ -1,0 +1,12 @@
+isForeigner        char(1) not null default 'N'    Is it a tourist?
+billingCode        char(2) not null default 'A'    Billing code
+hasPoorId          char(1) not null default 'N'    Patient has poor ID?
+poorIdExpiry       date                            Poor ID expiry date
+hasHEF             char(1) not null default 'N'    Patient has HEF ID?
+HEFexpiry          date                            HEF ID expiry date
+LMTR               char(3)
+isEmployee         char(1) not null default 'N'    Is it AHC employee?
+thirdPartyPayer    char(1) not null default 'N'    Patient has third party payer?
+insuranceName      varchar(80)
+employeeCardId     char(10)                        Employee ID
+employeeCardExpiry date                            Employee card expiry date
